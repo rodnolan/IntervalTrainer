@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+                       xmlns:s="library://ns.adobe.com/flex/spark"
                        creationComplete="onCreationComplete()">
-
-
     <s:layout>
         <s:VerticalLayout paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10"/>
     </s:layout>
@@ -10,56 +9,60 @@
         <![CDATA[
         import spark.core.SpriteVisualElement;
 
+        import vo.StaffLine;
+        import vo.StaffSpace;
+
         private var spacer:int = 30;
-        private var lines:Array = ["","F","D","B","G","E"];
+        private var lines:Array = ["E", "G", "B", "D", "F"];
+        private var spaces:Array = ["F", "A", "C", "E"];
 
         protected function onCreationComplete():void {
-
+            lines.forEach(function callback(item:*, index:int, array:Array):void{
+               array[index] = new StaffLine(item);
+            });
+            lines.reverse();
+            spaces.forEach(function callback(item:*, index:int, array:Array):void{
+                array[index] = new StaffSpace(item);
+            });
+            spaces.reverse();
+            drawStaff();
         }
 
-        protected function drawStaff3():void {
+        protected function drawStaff():void {
 
-            var numLines:int = 5;
-            var fiveLineStaffContainer:SpriteVisualElement = new SpriteVisualElement();
-            fiveLineStaffContainer.height = (numLines+2) * spacer;
 
-            var staffLine:SpriteVisualElement;
-            for (var i:int = 1; i <= 5; i++) {
-                staffLine = getSpriteWithLine(staffGroup2.width, 1);
-                staffLine.x = 0;
-                staffLine.y = i*spacer;
-                fiveLineStaffContainer.addChild(staffLine);
+            var spaceOnPerimeter:Boolean = true;
+            var numLedgerLines:int = 3;
+
+            var staffContainer:SpriteVisualElement = new SpriteVisualElement();
+            staffContainer.height = (lines.length + 2) * spacer;
+
+            var staffLine:StaffLine;
+            var staffSpace:StaffSpace;
+            for (var i:int = 3; i >= 0; i--) {
+                staffSpace = spaces[i];
+                staffSpace.draw(staffGroup.width, spacer);
+                staffSpace.x = 0;
+                staffSpace.y = i * spacer;
+                staffContainer.addChild(staffSpace);
             }
-            var staffHeight:int = staffGroup2.height;
-            var fiveLineStaffContainerHeight:int = fiveLineStaffContainer.height;
+            for (var i:int = 4; i >= 0; i--) {
+                staffLine = lines[i];
+                staffLine.draw(staffGroup.width, 3);
+                staffLine.x = 0;
+                staffLine.y = i * spacer;
+                staffContainer.addChild(staffLine);
+            }
 
-            staffGroup2.addElement(fiveLineStaffContainer);
-            fiveLineStaffContainer.y = ( staffHeight/2) - (fiveLineStaffContainerHeight/2);
+            var staffHeight:int = staffGroup.height;
+            var fiveLineStaffContainerHeight:int = staffContainer.height;
+
+            staffGroup.addElement(staffContainer);
+            staffContainer.y = ( staffHeight / 2) - (fiveLineStaffContainerHeight / 2);
         }
-
-
-        private function getSpriteWithLine(w:int, h:int):SpriteVisualElement {
-            var sprite:SpriteVisualElement = new SpriteVisualElement();
-            var graphics:Graphics = sprite.graphics;
-            graphics.lineStyle(2);
-            graphics.beginFill(0);
-            graphics.drawRect(0, 0, w, h);
-            sprite.addEventListener(MouseEvent.MOUSE_OVER, onStaffLineMouseOver);
-            return sprite;
-        }
-
-        private function onStaffLineMouseOver(event:MouseEvent):void {
-            trace("line " + lines[event.target.y / spacer] + " was rolled over");
-        }
-
-
         ]]>
     </fx:Script>
 
-
-    <s:HGroup>
-        <s:Button label="draw staff" click="drawStaff3()" />
-    </s:HGroup>
-    <s:BorderContainer id="staffGroup2" width="100%" height="100%" />
+    <s:BorderContainer id="staffGroup" width="100%" height="100%" />
 
 </s:WindowedApplication>
